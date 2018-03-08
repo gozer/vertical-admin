@@ -28,3 +28,14 @@ file { '/usr/local/bin/vsql':
     Package['vsql'],
   ],
 }
+
+file { "/etc/profile.d/${project_name}.sh":
+  ensure => present,
+  owner  => root,
+  group  => root,
+  mode   => '0755',
+  content => @(EOF)
+export VSQL_HOST="$(nubis-metadata NUBIS_ENVIRONMENT).vertical.service.consul"
+export VSQL_USER=dbadmin
+EOF
+}
