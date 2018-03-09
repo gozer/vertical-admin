@@ -1,0 +1,15 @@
+cluster_nodes:
+  query: "select count(1) as total from nodes"
+  metrics:
+    - total:
+        usage: "GAUGE"
+        description: "Number of nodes"
+node_disk_space_used_mb:
+  query: "select node_name, sum(disk_space_used_mb) as disk_usage_mb from DISK_STORAGE GROUP by (node_name)"
+  metrics:
+    - node_name:     
+        usage: "LABEL"
+        description: "Node name"
+    - disk_usage_mb:
+        usage: "GAUGE"
+        description: "Total Megabytes used"

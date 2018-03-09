@@ -1,0 +1,17 @@
+#!/bin/bash
+
+NUBIS_ENVIRONMENT=$(nubis-metadata NUBIS_ENVIRONMENT)
+
+echo "Generating /etc/odbc.ini"
+
+cat << EOF > /etc/odbc.ini
+[metrics]
+Driver = Vertica
+Servername = $NUBIS_ENVIRONMENT.vertical.service.consul
+Database = metrics
+Port = 5433
+UserName = dbadmin
+EOF
+
+# Restart DBMS exporter, it doesn't fail to start if DSN is invalid, yuck
+systemctl restart dbms_exporter
