@@ -1,6 +1,5 @@
 $vsql_major_version = '8.1'
 $vsql_version = "${vsql_major_version}.1-13"
-$dbms_exporter_version = '0.0.1-nubis1'
 
 package { 'vsql':
   ensure          => present,
@@ -17,19 +16,6 @@ package { 'vsql':
     File['/etc/vertica.ini'],
     Package['unixODBC'],
   ],
-}
-
-notice ("Grabbing dbms_exporter ${dbms_exporter_version}")
-
-$dbms_exporter_url = "https://github.com/gozer/dbms_exporter/releases/download/${dbms_exporter_version}/dbms_exporter-${dbms_exporter_version}"
-
-staging::file { '/usr/local/bin/dbms_exporter':
-  source => $dbms_exporter_url,
-  target => '/usr/local/bin/dbms_exporter',
-}
--> exec { 'chmod /usr/local/bin/dbms_exporter':
-  command => 'chmod 755 /usr/local/bin/dbms_exporter',
-  path    => ['/sbin','/bin','/usr/sbin','/usr/bin','/usr/local/sbin','/usr/local/bin'],
 }
 
 file { '/etc/vertica.ini':
