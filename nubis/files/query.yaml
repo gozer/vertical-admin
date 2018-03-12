@@ -1,15 +1,46 @@
+---
 cluster_nodes:
   query: "select count(1) as total from nodes"
   metrics:
     - total:
         usage: "GAUGE"
         description: "Number of nodes"
-node_disk_space_used_mb:
-  query: "select node_name, sum(disk_space_used_mb) as disk_usage_mb from DISK_STORAGE GROUP by (node_name)"
+node_disk_space_used:
+  query: >
+    SELECT
+      node_name,
+      sum(disk_space_used_mb) as disk_usage_mb
+    FROM
+      DISK_STORAGE
+    GROUP BY
+      node_name
   metrics:
-    - node_name:     
+    - node_name:
         usage: "LABEL"
         description: "Node name"
     - disk_usage_mb:
         usage: "GAUGE"
         description: "Total Megabytes used"
+table_size:
+  query: >
+    SELECT
+      anchor_table_schema,
+      anchor_table_name,
+      SUM (used_bytes) AS used_bytes
+    FROM
+      v_monitor.column_storage
+    GROUP  BY
+      anchor_table_schema,
+      anchor_table_name
+    ORDER  BY
+      SUM (used_bytes) DESC
+  metrics:
+    - anchor_table_schema:
+        usage: "LABEL"
+        description: "Table Schema"
+    - anchor_table_name:
+        usage: "LABEL"
+        description: "Table Name"
+    - used_bytes:
+        usage: "GAUGE"
+        description: "Compressed bytes used"
