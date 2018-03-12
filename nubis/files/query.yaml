@@ -22,7 +22,7 @@ vertica_cluster_nodes:
       node_state as state,
       count(1) as count
     FROM
-      v_monitor.nodes
+      v_catalog.nodes
     GROUP BY
       node_state
   metrics:
