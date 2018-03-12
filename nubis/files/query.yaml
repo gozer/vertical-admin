@@ -1,15 +1,25 @@
 ---
 cluster_nodes:
-  query: "select count(1) as total from nodes"
+  query: >
+    SELECT
+      node_state as state,
+      count(1) as count
+    FROM
+      nodes
+    GROUP BY
+      node_state
   metrics:
-    - total:
+    - state:
+        usage: "LABEL"
+        description: "Node state"
+    - count:
         usage: "GAUGE"
         description: "Number of nodes"
 node_disk_space_used:
   query: >
     SELECT
       node_name,
-      sum(disk_space_used_mb) as disk_usage_mb
+      sum(disk_space_used_mb * (1024^2)) as disk_usage_bytes
     FROM
       DISK_STORAGE
     GROUP BY
@@ -18,14 +28,45 @@ node_disk_space_used:
     - node_name:
         usage: "LABEL"
         description: "Node name"
-    - disk_usage_mb:
+    - disk_usage_bytes:
         usage: "GAUGE"
-        description: "Total Megabytes used"
+        description: "Total bytes used"
+database_size:
+  query: >
+    SELECT
+       pj.anchor_table_schema AS schema,
+       pj.used_compressed AS used_compressed_bytes,
+       FLOOR(pj.used_compressed * la.ratio) AS raw_estimate_bytes
+    FROM (SELECT ps.anchor_table_schema,
+                 SUM(used_bytes) AS used_compressed
+          FROM v_catalog.projections p
+          JOIN v_monitor.projection_storage ps
+          ON ps.projection_id = p.projection_id
+          WHERE  p.is_super_projection = 't'
+          GROUP  BY ps.anchor_table_schema) pj
+    CROSS JOIN (SELECT (SELECT database_size_bytes
+                        FROM v_catalog.license_audits
+                        WHERE audited_data = 'Regular'
+                        ORDER BY audit_start_timestamp DESC
+                        LIMIT  1) /
+                        (SELECT SUM(used_bytes)
+                         FROM V_MONITOR.projection_storage) AS ratio) la
+    ORDER  BY pj.used_compressed DESC
+  metrics:
+    - used_compressed_bytes:
+        usage: "GAUGE"
+        description: "Compressez disk usage in bytes"
+    - raw_estimate_bytes:
+        usage: "GAUGE"
+        description: "Estmpated uncompressed data usage in bytes"
+    - schema:
+        usage: "LABEL"
+        description: "Schame Name"
 table_size:
   query: >
     SELECT
-      anchor_table_schema,
-      anchor_table_name,
+      anchor_table_schema as schema,
+      anchor_table_name as table,
       SUM (used_bytes) AS used_bytes
     FROM
       v_monitor.column_storage
@@ -35,10 +76,10 @@ table_size:
     ORDER  BY
       SUM (used_bytes) DESC
   metrics:
-    - anchor_table_schema:
+    - schema:
         usage: "LABEL"
         description: "Table Schema"
-    - anchor_table_name:
+    - table:
         usage: "LABEL"
         description: "Table Name"
     - used_bytes:
