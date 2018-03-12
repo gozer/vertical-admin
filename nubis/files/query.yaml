@@ -1,5 +1,5 @@
 ---
-cluster_nodes:
+vertica_cluster_nodes:
   query: >
     SELECT
       node_state as state,
@@ -15,7 +15,7 @@ cluster_nodes:
     - count:
         usage: "GAUGE"
         description: "Number of nodes"
-node_disk_space_used:
+vertica_node_disk_space_used:
   query: >
     SELECT
       node_name,
@@ -31,7 +31,7 @@ node_disk_space_used:
     - disk_usage_bytes:
         usage: "GAUGE"
         description: "Total bytes used"
-database_size:
+vertica_database_size:
   query: >
     SELECT
        pj.anchor_table_schema AS schema,
@@ -62,7 +62,7 @@ database_size:
     - schema:
         usage: "LABEL"
         description: "Schame Name"
-table_size:
+vertica_table_size:
   query: >
     SELECT
       anchor_table_schema as schema,
