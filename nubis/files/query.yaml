@@ -1,4 +1,21 @@
 ---
+# Application Specific
+vertica_last_updated:
+  query: >
+    SELECT
+      name,
+      FLOOR(EXTRACT(EPOCH FROM MAX(updated_at))) as timestamp
+    FROM
+      public.last_updated
+    GROUP BY name
+  metrics:
+    - name:
+        usage: "LABEL"
+        description: "Job name"
+    - timestamp:
+        usage: "GAUGE"
+        description: "Last updated timestamp"
+# Vertica health
 vertica_cluster_nodes:
   query: >
     SELECT
