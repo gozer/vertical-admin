@@ -5,7 +5,7 @@ vertica_cluster_nodes:
       node_state as state,
       count(1) as count
     FROM
-      nodes
+      v_monitor.nodes
     GROUP BY
       node_state
   metrics:
@@ -21,7 +21,7 @@ vertica_node_disk_space_used:
       node_name,
       sum(disk_space_used_mb * (1024^2)) as disk_usage_bytes
     FROM
-      DISK_STORAGE
+      v_monitor.DISK_STORAGE
     GROUP BY
       node_name
   metrics:
