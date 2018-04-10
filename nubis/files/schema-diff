@@ -1,0 +1,16 @@
+#!/bin/bash -l
+
+NUBIS_ENVIRONMENT=$(nubis-metadata NUBIS_ENVIRONMENT)
+SCHEMA_DUMP=$(mktemp)
+
+cleanup () {
+ rm -f "$SCHEMA_DUMP" 2>/dev/null
+}
+trap cleanup EXIT
+
+/opt/vertica/bin/vsql -qt \
+  -o "$SCHEMA_DUMP" \
+  -h "$NUBIS_ENVIRONMENT.vertical.service.consul" \
+  -U dbadmin -c "select export_catalog('','design_all')"
+
+diff -du /etc/vertica.sql "$SCHEMA_DUMP"

@@ -6,8 +6,16 @@ file { '/etc/vertica.sql':
   source => 'puppet:///nubis/files/schema.sql',
 }
 
+file { '/usr/local/bin/vertica-schema-diff':
+  ensure => present,
+  owner  => root,
+  group  => root,
+  mode   => '0755',
+  source => 'puppet:///nubis/files/schema-diff',
+}
+
 # Periodically dump schems for comparaison
 cron::daily { "${project_name}-schema-dump":
-  command => "nubis-cron ${project_name}-schema-dump /opt/vertica/bin/vsql -qt -o /tmp/vertica.sql -h $(nubis-metadata NUBIS_ENVIRONMENT).vertical.service.consul -U dbadmin -c \\\"select export_catalog('','design_all');\\\"",
+  command => "nubis-cron ${project_name}-schema-dump /usr/local/bin/vertica-schema-diff",
   user    => 'root',
 }
