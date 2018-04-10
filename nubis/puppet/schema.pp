@@ -8,6 +8,6 @@ file { '/etc/vertica.sql':
 
 # Periodically dump schems for comparaison
 cron::daily { "${project_name}-schema-dump":
-  command => "nubis-cron ${project_name}-schema-dump /opt/vertica/bin/vsql -qt -o /tmp/vertica.sql -h $(nubis-metadata NUBIS_ENVIRONMENT).vertical.service.consul -U dbadmin -c \"select export_catalog('','design_all');\"",
+  command => "nubis-cron ${project_name}-schema-dump /opt/vertica/bin/vsql -qt -o /tmp/vertica.sql -h $(nubis-metadata NUBIS_ENVIRONMENT).vertical.service.consul -U dbadmin -c \\\"select export_catalog('','design_all');\\\"",
   user    => 'root',
 }
