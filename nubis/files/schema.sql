@@ -2139,6 +2139,43 @@ AS
           fhr_rollups_monthly_base.tHasUP
 SEGMENTED BY hash(fhr_rollups_monthly_base.tTotalProfiles, fhr_rollups_monthly_base.tExistingProfiles, fhr_rollups_monthly_base.tNewProfiles, fhr_rollups_monthly_base.tActiveProfiles, fhr_rollups_monthly_base.tInActiveProfiles, fhr_rollups_monthly_base.tActiveDays, fhr_rollups_monthly_base.tTotalSeconds, fhr_rollups_monthly_base.tActiveSeconds, fhr_rollups_monthly_base.tNumSessions, fhr_rollups_monthly_base.tCrashes, fhr_rollups_monthly_base.tTotalSearch, fhr_rollups_monthly_base.tGoogleSearch, fhr_rollups_monthly_base.tYahooSearch, fhr_rollups_monthly_base.tBingSearch, fhr_rollups_monthly_base.tOfficialSearch, fhr_rollups_monthly_base.tIsDefault, fhr_rollups_monthly_base.tIsActiveProfileDefault, fhr_rollups_monthly_base.t5outOf7, fhr_rollups_monthly_base.tChurned, fhr_rollups_monthly_base.tHasUP, fhr_rollups_monthly_base.vendor, fhr_rollups_monthly_base.name, fhr_rollups_monthly_base.channel, fhr_rollups_monthly_base.os, fhr_rollups_monthly_base.osdetail, fhr_rollups_monthly_base.distribution, fhr_rollups_monthly_base.locale, fhr_rollups_monthly_base.geo, fhr_rollups_monthly_base.version, fhr_rollups_monthly_base.isstdprofile, fhr_rollups_monthly_base.stdchannel, fhr_rollups_monthly_base.stdos) ALL NODES KSAFE 1;
 
+CREATE PROJECTION public.v4_submissionwise_v5 /*+createtype(L)*/ 
+(
+ submission_date,
+ search_provider,
+ search_count,
+ country,
+ locale,
+ distribution_id,
+ default_provider,
+ profiles_matching,
+ profile_share,
+ intermediate_source
+)
+AS
+ SELECT v4_submissionwise_v5.submission_date,
+        v4_submissionwise_v5.search_provider,
+        v4_submissionwise_v5.search_count,
+        v4_submissionwise_v5.country,
+        v4_submissionwise_v5.locale,
+        v4_submissionwise_v5.distribution_id,
+        v4_submissionwise_v5.default_provider,
+        v4_submissionwise_v5.profiles_matching,
+        v4_submissionwise_v5.profile_share,
+        v4_submissionwise_v5.intermediate_source
+ FROM public.v4_submissionwise_v5
+ ORDER BY v4_submissionwise_v5.submission_date,
+          v4_submissionwise_v5.search_provider,
+          v4_submissionwise_v5.search_count,
+          v4_submissionwise_v5.country,
+          v4_submissionwise_v5.locale,
+          v4_submissionwise_v5.distribution_id,
+          v4_submissionwise_v5.default_provider,
+          v4_submissionwise_v5.profiles_matching,
+          v4_submissionwise_v5.profile_share,
+          v4_submissionwise_v5.intermediate_source
+SEGMENTED BY hash(v4_submissionwise_v5.submission_date, v4_submissionwise_v5.search_count, v4_submissionwise_v5.profiles_matching, v4_submissionwise_v5.profile_share, v4_submissionwise_v5.search_provider, v4_submissionwise_v5.country, v4_submissionwise_v5.locale, v4_submissionwise_v5.distribution_id, v4_submissionwise_v5.default_provider, v4_submissionwise_v5.intermediate_source) ALL NODES KSAFE 1;
+
 CREATE PROJECTION public.pocket_mobile_daily_active_users /*+createtype(L)*/ 
 (
  activity_date,
