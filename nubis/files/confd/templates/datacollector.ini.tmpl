@@ -1,0 +1,14 @@
+[authentication]
+hostname = {{ getv "/config/DataCollector/Hostname" "unset-hostname" }} 
+password = {{ getv "/config/DataCollector/Password" "unset-password" }} 
+requestURL = {{ getv "/config/DataCollector/URL" "https://www.mozdatacollective.com/" }}
+
+[parameters]
+FetchRestartWait = 300
+PollingInterval = 1
+PostingRestartWait = 300
+PostingTimeoutInterval = 10
+HeartbeatAlertInterval = 10
+PostingRestartsAllow = 3
+FetchRestartsAllow = 3
+FetchTimeoutInterval = 30

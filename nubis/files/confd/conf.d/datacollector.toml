@@ -1,0 +1,13 @@
+[template]
+src = "datacollector.ini.tmpl"
+dest = "/etc/datacollector/config.ini"
+prefix = "/%%PROJECT%%-%%ENVIRONMENT%%/%%ENVIRONMENT%%"
+
+uid = 0
+gid = 0
+mode = "0644"
+
+keys = [
+    "/config/*",
+    "/config"
+]
