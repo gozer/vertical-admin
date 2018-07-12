@@ -14,7 +14,7 @@ file { '/opt/mi/datacollector':
   require => [
     File['/opt/mi'],
   ],
-}->
+}
 -> exec { 'chmod /opt/mi/datacollector/bin/*':
   command => 'chmod 755 /opt/mi/datacollector/bin/*',
   path    => ['/sbin','/bin','/usr/sbin','/usr/bin','/usr/local/sbin','/usr/local/bin'],
