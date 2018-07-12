@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <appender name="querylog" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <filter class="com.metricinsights.collector.standalone.QueryLogFilter">
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+        <file>${mi.insightd_dir}/logs/query.log</file>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} [%-5level] - %msg%n</pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${mi.insightd_dir}/logs/query.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>7</maxHistory>
+        </rollingPolicy>
+    </appender>
+
+    <appender name="debuglog" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${mi.insightd_dir}/logs/insight.log</file>
+        <filter class="com.metricinsights.collector.standalone.MetricInsightsLogFilter">
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+        <encoder>
+            <pattern>%date [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${mi.insightd_dir}/logs/insight.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>7</maxHistory>
+        </rollingPolicy>
+    </appender>
+
+    <root level="DEBUG">
+        <appender-ref ref="debuglog"/>
+        <appender-ref ref="querylog"/>
+    </root>
+
+</configuration>

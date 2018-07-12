@@ -1,0 +1,19 @@
+2018-07-12 13:44:54,236 [main] DEBUG c.m.collector.daemon.Main - Instructed to use config file at /home/gozer/opt/src/mozilla.org/gozer/nubis/apps/vertical-admin/nubis/files/datacollector/conf/config.ini
+2018-07-12 13:44:54,283 [main] INFO  c.m.collector.daemon.WorkDispatcher - Using configuration file /home/gozer/opt/src/mozilla.org/gozer/nubis/apps/vertical-admin/nubis/files/datacollector/conf/config.ini
+2018-07-12 13:44:54,292 [main] INFO  c.m.collector.daemon.HttpManager - Creating HttpManager with hostname=, pass=, request=https://bob.metricinsights.com:8443
+2018-07-12 13:44:54,292 [main] INFO  c.m.collector.daemon.HttpManager - Created HttpManager with hostname=, pass=, request=https://bob.metricinsights.com:8443
+2018-07-12 13:44:54,293 [main] INFO  c.m.collector.daemon.HttpManager - HttpManager using port=8443 for scheme=https
+2018-07-12 13:44:54,436 [main] INFO  c.m.collector.daemon.HttpManager - HttpManager register client connection manager
+2018-07-12 13:44:54,436 [main] DEBUG c.m.collector.daemon.HttpManager - HttpManager register port 8443 and scheme https
+2018-07-12 13:44:54,437 [main] DEBUG c.m.collector.daemon.HttpManager - HttpManager get connection pool
+2018-07-12 13:44:54,437 [main] INFO  c.m.collector.daemon.HttpManager - HttpManager not caching host/IP DNS lookup
+2018-07-12 13:44:54,445 [main] INFO  c.m.collector.daemon.HttpManager - HttpManager get credentials
+2018-07-12 13:44:54,453 [main] INFO  c.m.collector.daemon.HttpManager - HttpManager initialized
+2018-07-12 13:44:54,454 [main] INFO  c.m.collector.daemon.WorkDispatcher - Using pyinsight URL of https://bob.metricinsights.com:8443
+2018-07-12 13:44:55,262 [Thread-0] ERROR c.m.collector.daemon.HttpManager - Error posting to https://bob.metricinsights.com:8443/heartbeat, response: 
+2018-07-12 13:44:55,262 [Thread-0] DEBUG c.m.collector.daemon.HttpManager - HTTP/1.1 401 UNAUTHORIZED
+2018-07-12 13:44:55,263 [Thread-0] ERROR c.m.collector.daemon.HttpManager - Heartbeat Posting error: Error Posting Heartbeat to Metric Insights 
+2018-07-12 13:44:55,263 [Thread-0] ERROR c.m.collector.daemon.HttpManager - Trace com.metricinsights.collector.daemon.HttpManager.postHeartbeat(HttpManager.java:510)
+2018-07-12 13:44:55,263 [Thread-0] ERROR c.m.collector.daemon.HttpManager - Trace com.metricinsights.collector.daemon.WorkDispatcher.run(WorkDispatcher.java:145)
+2018-07-12 13:44:55,263 [Thread-0] ERROR c.m.collector.daemon.HttpManager - Trace java.lang.Thread.run(Thread.java:748)
+2018-07-12 13:44:55,263 [Thread-0] ERROR c.m.collector.daemon.WorkDispatcher - Insightd could not be started because it could not connect to the Metric Insights server at https://bob.metricinsights.com:8443  Check your config file settings in /home/gozer/opt/src/mozilla.org/gozer/nubis/apps/vertical-admin/nubis/files/datacollector/conf/config.ini to verify that server and port specified are correct.

@@ -1,0 +1,29 @@
+#!/bin/bash
+#
+# ---------------------------------------------------------------
+# Copyright 2008-2012 Metric Insights, Inc.
+#
+# Licensed under the Metric Insights Software License Agreement,
+# Version 1.1 (the "License"); You may not use this file except
+# in accordance with the License.
+#
+# ---------------------------------------------------------------
+# Copyright (c) 2008-2012 Metric Insights, Inc.
+# All rights reserved.
+#
+
+insightd_dir=$(dirname $(dirname $(readlink -f $0)))
+base_dir=$(dirname $(readlink -f $insightd_dir))
+
+if [ -f "$base_dir/config/insight.conf" ]; then
+    conf_file="$base_dir/config/insight.conf"
+else
+    conf_file='/etc/mi/insight.conf'
+fi
+
+CLASSPATH=$CLASSPATH:$insightd_dir/lib:$insightd_dir/lib/*:$insightd_dir/plugins:$insightd_dir/plugins/*:$insightd_dir/drivers:$insightd_dir/drivers/*:/etc/insight/drivers:/etc/insight/drivers/*
+JAVA_OPTS="$JAVA_OPTS -Xmx8g -Dfile.encoding=UTF-8 -Djava.lib.path=$insightd_dir/plugins/native -Dmi.base_dir=$base_dir -Dmi.insightd_dir=$insightd_dir -Dmi.config_file=$conf_file"
+JAVA_OPTS="$JAVA_OPTS -Djava.security.auth.login.config=$insightd_dir/conf/insightd-krb5.conf -Djavax.security.auth.useSubjectCredsOnly=false"
+JAVA_HOME=${JAVA_HOME:-/usr}
+
+$JAVA_HOME/bin/java $JAVA_OPTS -cp "$CLASSPATH" com.metricinsights.collector.daemon.Main "$@"
