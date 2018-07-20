@@ -1609,6 +1609,43 @@ CREATE TABLE public.pocket_mobile_daily_active_users
 );
 
 
+CREATE TABLE public.reviews
+(
+    ID varchar(80) NOT NULL,
+    Store varchar(80) NOT NULL,
+    Device varchar(80) NOT NULL,
+    Source varchar(80) NOT NULL,
+    Country varchar(80),
+    "Review Date" date NOT NULL,
+    Version float NOT NULL,
+    Rating varchar(80),
+    "Original Reviews" varchar(4000) NOT NULL,
+    "Translated Reviews" varchar(4000) NOT NULL,
+    Sentiment varchar(80) NOT NULL,
+    Spam int,
+    "Verb Phrases" varchar(4000),
+    "Noun Phrases" varchar(4000),
+    "Clear Filters" varchar(80)
+);
+
+ALTER TABLE public.reviews ADD CONSTRAINT C_PRIMARY PRIMARY KEY (ID) DISABLED;
+
+CREATE TABLE public.categorization
+(
+    ID varchar(80) NOT NULL,
+    Feature varchar(80) NOT NULL,
+    Component varchar(80) NOT NULL,
+    theAction varchar(4000)
+);
+
+
+CREATE TABLE public.key_issue
+(
+    ID varchar(80) NOT NULL,
+    "Key Issue" varchar(80) NOT NULL
+);
+
+
 CREATE PROJECTION autoscale.launches_super /*+basename(launches),createtype(P)*/ 
 (
  added_by_node,
@@ -2139,6 +2176,37 @@ AS
           fhr_rollups_monthly_base.tHasUP
 SEGMENTED BY hash(fhr_rollups_monthly_base.tTotalProfiles, fhr_rollups_monthly_base.tExistingProfiles, fhr_rollups_monthly_base.tNewProfiles, fhr_rollups_monthly_base.tActiveProfiles, fhr_rollups_monthly_base.tInActiveProfiles, fhr_rollups_monthly_base.tActiveDays, fhr_rollups_monthly_base.tTotalSeconds, fhr_rollups_monthly_base.tActiveSeconds, fhr_rollups_monthly_base.tNumSessions, fhr_rollups_monthly_base.tCrashes, fhr_rollups_monthly_base.tTotalSearch, fhr_rollups_monthly_base.tGoogleSearch, fhr_rollups_monthly_base.tYahooSearch, fhr_rollups_monthly_base.tBingSearch, fhr_rollups_monthly_base.tOfficialSearch, fhr_rollups_monthly_base.tIsDefault, fhr_rollups_monthly_base.tIsActiveProfileDefault, fhr_rollups_monthly_base.t5outOf7, fhr_rollups_monthly_base.tChurned, fhr_rollups_monthly_base.tHasUP, fhr_rollups_monthly_base.vendor, fhr_rollups_monthly_base.name, fhr_rollups_monthly_base.channel, fhr_rollups_monthly_base.os, fhr_rollups_monthly_base.osdetail, fhr_rollups_monthly_base.distribution, fhr_rollups_monthly_base.locale, fhr_rollups_monthly_base.geo, fhr_rollups_monthly_base.version, fhr_rollups_monthly_base.isstdprofile, fhr_rollups_monthly_base.stdchannel, fhr_rollups_monthly_base.stdos) ALL NODES KSAFE 1;
 
+CREATE PROJECTION public.nagios_log_data /*+createtype(L)*/ 
+(
+ event_occurred_at,
+ incident_type,
+ host,
+ service,
+ status,
+ notify_by,
+ description,
+ filename
+)
+AS
+ SELECT nagios_log_data.event_occurred_at,
+        nagios_log_data.incident_type,
+        nagios_log_data.host,
+        nagios_log_data.service,
+        nagios_log_data.status,
+        nagios_log_data.notify_by,
+        nagios_log_data.description,
+        nagios_log_data.filename
+ FROM public.nagios_log_data
+ ORDER BY nagios_log_data.event_occurred_at,
+          nagios_log_data.incident_type,
+          nagios_log_data.host,
+          nagios_log_data.service,
+          nagios_log_data.status,
+          nagios_log_data.notify_by,
+          nagios_log_data.description,
+          nagios_log_data.filename
+SEGMENTED BY hash(nagios_log_data.event_occurred_at, nagios_log_data.status, nagios_log_data.incident_type, nagios_log_data.filename, nagios_log_data.host, nagios_log_data.service, nagios_log_data.notify_by, nagios_log_data.description) ALL NODES KSAFE 1;
+
 CREATE PROJECTION public.v4_submissionwise_v5 /*+createtype(L)*/ 
 (
  submission_date,
@@ -2176,6 +2244,40 @@ AS
           v4_submissionwise_v5.intermediate_source
 SEGMENTED BY hash(v4_submissionwise_v5.submission_date, v4_submissionwise_v5.search_count, v4_submissionwise_v5.profiles_matching, v4_submissionwise_v5.profile_share, v4_submissionwise_v5.search_provider, v4_submissionwise_v5.country, v4_submissionwise_v5.locale, v4_submissionwise_v5.distribution_id, v4_submissionwise_v5.default_provider, v4_submissionwise_v5.intermediate_source) ALL NODES KSAFE 1;
 
+CREATE PROJECTION public.ut_monthly_rollups /*+createtype(L)*/ 
+(
+ month,
+ search_provider,
+ search_count,
+ country,
+ locale,
+ distribution_id,
+ default_provider,
+ profiles_matching,
+ processed
+)
+AS
+ SELECT ut_monthly_rollups.month,
+        ut_monthly_rollups.search_provider,
+        ut_monthly_rollups.search_count,
+        ut_monthly_rollups.country,
+        ut_monthly_rollups.locale,
+        ut_monthly_rollups.distribution_id,
+        ut_monthly_rollups.default_provider,
+        ut_monthly_rollups.profiles_matching,
+        ut_monthly_rollups.processed
+ FROM public.ut_monthly_rollups
+ ORDER BY ut_monthly_rollups.month,
+          ut_monthly_rollups.search_provider,
+          ut_monthly_rollups.search_count,
+          ut_monthly_rollups.country,
+          ut_monthly_rollups.locale,
+          ut_monthly_rollups.distribution_id,
+          ut_monthly_rollups.default_provider,
+          ut_monthly_rollups.profiles_matching,
+          ut_monthly_rollups.processed
+SEGMENTED BY hash(ut_monthly_rollups.month, ut_monthly_rollups.search_count, ut_monthly_rollups.profiles_matching, ut_monthly_rollups.processed, ut_monthly_rollups.search_provider, ut_monthly_rollups.country, ut_monthly_rollups.locale, ut_monthly_rollups.distribution_id, ut_monthly_rollups.default_provider) ALL NODES KSAFE 1;
+
 CREATE PROJECTION public.pocket_mobile_daily_active_users /*+createtype(L)*/ 
 (
  activity_date,
@@ -2206,6 +2308,104 @@ AS
           pocket_mobile_daily_active_users.mau_rolling_28,
           pocket_mobile_daily_active_users.app
 SEGMENTED BY hash(pocket_mobile_daily_active_users.activity_date, pocket_mobile_daily_active_users.platform, pocket_mobile_daily_active_users.dau, pocket_mobile_daily_active_users.wau_rolling_7, pocket_mobile_daily_active_users.mau_rolling_30, pocket_mobile_daily_active_users.mau_rolling_31, pocket_mobile_daily_active_users.mau_rolling_28, pocket_mobile_daily_active_users.app) ALL NODES KSAFE 1;
+
+CREATE PROJECTION public.releases /*+createtype(L)*/ 
+(
+ is_released,
+ version_int,
+ version,
+ channel,
+ merge_date,
+ release_date,
+ product
+)
+AS
+ SELECT releases.is_released,
+        releases.version_int,
+        releases.version,
+        releases.channel,
+        releases.merge_date,
+        releases.release_date,
+        releases.product
+ FROM public.releases
+ ORDER BY releases.is_released,
+          releases.version_int,
+          releases.version,
+          releases.channel,
+          releases.merge_date,
+          releases.release_date,
+          releases.product
+SEGMENTED BY hash(releases.is_released, releases.version_int, releases.version, releases.merge_date, releases.release_date, releases.channel, releases.product) ALL NODES KSAFE 1;
+
+CREATE PROJECTION public.reviews /*+createtype(L)*/ 
+(
+ ID,
+ Store,
+ Device,
+ Source,
+ Country,
+ "Review Date",
+ Version,
+ Rating,
+ "Original Reviews",
+ "Translated Reviews",
+ Sentiment,
+ Spam,
+ "Verb Phrases",
+ "Noun Phrases",
+ "Clear Filters"
+)
+AS
+ SELECT reviews.ID,
+        reviews.Store,
+        reviews.Device,
+        reviews.Source,
+        reviews.Country,
+        reviews."Review Date",
+        reviews.Version,
+        reviews.Rating,
+        reviews."Original Reviews",
+        reviews."Translated Reviews",
+        reviews.Sentiment,
+        reviews.Spam,
+        reviews."Verb Phrases",
+        reviews."Noun Phrases",
+        reviews."Clear Filters"
+ FROM public.reviews
+ ORDER BY reviews.ID
+SEGMENTED BY hash(reviews.ID) ALL NODES KSAFE 1;
+
+CREATE PROJECTION public.categorization /*+createtype(L)*/ 
+(
+ ID,
+ Feature,
+ Component,
+ theAction
+)
+AS
+ SELECT categorization.ID,
+        categorization.Feature,
+        categorization.Component,
+        categorization.theAction
+ FROM public.categorization
+ ORDER BY categorization.ID,
+          categorization.Feature,
+          categorization.Component,
+          categorization.theAction
+SEGMENTED BY hash(categorization.ID, categorization.Feature, categorization.Component, categorization.theAction) ALL NODES KSAFE 1;
+
+CREATE PROJECTION public.key_issue /*+createtype(L)*/ 
+(
+ ID,
+ "Key Issue"
+)
+AS
+ SELECT key_issue.ID,
+        key_issue."Key Issue"
+ FROM public.key_issue
+ ORDER BY key_issue.ID,
+          key_issue."Key Issue"
+SEGMENTED BY hash(key_issue.ID, key_issue."Key Issue") ALL NODES KSAFE 1;
 
 CREATE PROJECTION public.adjust_retention /*+createtype(L)*/ 
 (
@@ -2625,6 +2825,49 @@ AS
           redash_focus_retention.weeK_num,
           redash_focus_retention.active_users
 SEGMENTED BY hash(redash_focus_retention.cohort, redash_focus_retention.week, redash_focus_retention.cohort_size, redash_focus_retention.weeK_num, redash_focus_retention.active_users, redash_focus_retention.os) ALL NODES KSAFE 1;
+
+CREATE PROJECTION public.churn_cohort /*+createtype(L)*/ 
+(
+ channel,
+ country,
+ is_funnelcake,
+ acquisition_period,
+ start_version,
+ sync_usage,
+ current_version,
+ week_since_acquisition,
+ is_active,
+ n_profiles,
+ usage_hours,
+ sum_squared_usage_hours
+)
+AS
+ SELECT churn_cohort.channel,
+        churn_cohort.country,
+        churn_cohort.is_funnelcake,
+        churn_cohort.acquisition_period,
+        churn_cohort.start_version,
+        churn_cohort.sync_usage,
+        churn_cohort.current_version,
+        churn_cohort.week_since_acquisition,
+        churn_cohort.is_active,
+        churn_cohort.n_profiles,
+        churn_cohort.usage_hours,
+        churn_cohort.sum_squared_usage_hours
+ FROM public.churn_cohort
+ ORDER BY churn_cohort.channel,
+          churn_cohort.country,
+          churn_cohort.is_funnelcake,
+          churn_cohort.acquisition_period,
+          churn_cohort.start_version,
+          churn_cohort.sync_usage,
+          churn_cohort.current_version,
+          churn_cohort.week_since_acquisition,
+          churn_cohort.is_active,
+          churn_cohort.n_profiles,
+          churn_cohort.usage_hours,
+          churn_cohort.sum_squared_usage_hours
+SEGMENTED BY hash(churn_cohort.country, churn_cohort.is_funnelcake, churn_cohort.acquisition_period, churn_cohort.week_since_acquisition, churn_cohort.is_active, churn_cohort.n_profiles, churn_cohort.usage_hours, churn_cohort.sum_squared_usage_hours, churn_cohort.start_version, churn_cohort.sync_usage, churn_cohort.current_version, churn_cohort.channel) ALL NODES KSAFE 1;
 
 CREATE PROJECTION public.mozilla_staff /*+createtype(L)*/ 
 (
