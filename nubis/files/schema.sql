@@ -2067,6 +2067,15 @@ CREATE TABLE public.sfmc_send_jobs_unique
 
 ALTER TABLE public.sfmc_send_jobs_unique ADD CONSTRAINT send_id_UK UNIQUE (send_id) ENABLED;
 
+CREATE TABLE public.sf_contact_history
+(
+    field varchar(50),
+    contact_id varchar(50),
+    created_date timestamp,
+    new_value varchar(255),
+    old_value varchar(255)
+);
+
 CREATE PROJECTION autoscale.launches_super /*+basename(launches),createtype(P)*/ 
 (
  added_by_node,
@@ -7106,6 +7115,14 @@ CREATE  VIEW public.adjust_daily_active_users_vw AS
         adjust_focus_daily_active_users.maus,
         'Focus'::varchar(5) AS type
  FROM public.adjust_focus_daily_active_users;
+
+CREATE  VIEW public.sf_contact_history_vw AS
+ SELECT sf_contact_history.contact_id,
+        sf_contact_history.created_date,
+        CASE WHEN (sf_contact_history.field = ANY (ARRAY['Sub_Test_Pilot__c'::varchar(17), 'Sub_Firefox_And_You__c'::varchar(22), 'Sub_Firefox_Accounts_Journey__c'::varchar(31)])) THEN 'Firefox'::varchar(7) WHEN (sf_contact_history.field = 'Sub_Apps_And_Hacks__c'::varchar(21)) THEN 'Developer'::varchar(9) WHEN (sf_contact_history.field = 'Sub_Mozilla_Foundation__c'::varchar(25)) THEN 'Mozilla'::varchar(7) WHEN (sf_contact_history.field = ANY (ARRAY['Sub_MITI_Subscriber__c'::varchar(22), 'Sub_Mozilla_Learning_Network__c'::varchar(31), 'Sub_Mozilla_Leadership_Network__c'::varchar(33), 'Sub_Webmaker__c'::varchar(15), 'Sub_Mozillians__c'::varchar(17), 'Sub_Open_Innovation_Subscriber__c'::varchar(33), 'Sub_Test_Flight__c'::varchar(18), 'Sub_View_Source_Global__c'::varchar(25), 'Sub_View_Source_Namerica__c'::varchar(27), 'Sub_Mozillians_NDA__c'::varchar(21)])) THEN 'Other'::varchar(5) ELSE sf_contact_history.field END AS field,
+        sf_contact_history.new_value,
+        sf_contact_history.old_value
+ FROM public.sf_contact_history;
 
 CREATE FUNCTION public.isOrContains(map Long Varchar, val Varchar)
 RETURN boolean AS
