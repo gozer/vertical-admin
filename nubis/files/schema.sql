@@ -2057,6 +2057,86 @@ CREATE TABLE public.copy_adi_dimensional_by_date
 );
 
 
+CREATE TABLE public.workday_hires
+(
+    employee_id varchar(20),
+    report_effective_date date
+);
+
+
+CREATE TABLE public.workday_terminations
+(
+    employee_id varchar(20),
+    report_effective_date date
+);
+
+
+CREATE TABLE public.workday_promotions
+(
+    employee_id varchar(20),
+    report_effective_date date
+);
+
+
+CREATE TABLE public.workday_employees
+(
+    employee_id varchar(20),
+    cost_center varchar(10),
+    cost_center_hierarchy varchar(50),
+    cost_center_hierarchy_group varchar(50),
+    steering_committee varchar(50),
+    scvp varchar(50),
+    management_chain_level_01 varchar(50),
+    management_chain_level_02 varchar(50),
+    management_chain_level_03 varchar(50),
+    management_chain_level_04 varchar(50),
+    management_chain_level_05 varchar(50),
+    management_chain_level_06 varchar(50),
+    worker_type varchar(25),
+    position_worker_type varchar(50),
+    job_family varchar(50),
+    management_level varchar(25),
+    is_manager boolean,
+    engineering_nonengineering varchar(20),
+    gender varchar(20),
+    female boolean,
+    male boolean,
+    gender_decline boolean,
+    gender_other boolean,
+    gender_blank boolean,
+    race_ethnicity varchar(255),
+    asian boolean,
+    black_or_african_american boolean,
+    hispanic_or_latino boolean,
+    native_hawaiian_or_other_pacific_islander boolean,
+    american_indian_or_alaska_native boolean,
+    two_or_more_races boolean,
+    race_is_other boolean,
+    white boolean,
+    race_decline boolean,
+    race_blank boolean,
+    original_hire_date date,
+    continuous_service_date date,
+    company_service_date date,
+    benefits_service_date date,
+    seniority_date date,
+    hire_date date,
+    office_or_remote varchar(10),
+    work_address_city varchar(100),
+    work_address_postal_code varchar(20),
+    location varchar(50),
+    location_address_country varchar(50),
+    workers_managers_legal_last_name varchar(50),
+    workers_managers_legal_first_name varchar(50),
+    worker_status varchar(15),
+    people_partner varchar(50),
+    termination_date date,
+    termination_category varchar(50),
+    termination_reason varchar(255),
+    report_effective_date date
+);
+
+
 CREATE TABLE public.sfmc_send_jobs_unique
 (
     send_id int NOT NULL,
@@ -2075,6 +2155,7 @@ CREATE TABLE public.sf_contact_history
     new_value varchar(255),
     old_value varchar(255)
 );
+
 
 CREATE PROJECTION autoscale.launches_super /*+basename(launches),createtype(P)*/ 
 (
@@ -7004,6 +7085,49 @@ AS
 SEGMENTED BY hash(v4_submissionwise_v5_test.submission_date, v4_submissionwise_v5_test.search_count, v4_submissionwise_v5_test.profiles_matching, v4_submissionwise_v5_test.profile_share, v4_submissionwise_v5_test.search_provider, v4_submissionwise_v5_test.country, v4_submissionwise_v5_test.locale, v4_submissionwise_v5_test.distribution_id, v4_submissionwise_v5_test.default_provider, v4_submissionwise_v5_test.intermediate_source) ALL NODES KSAFE 1;
 
 
+CREATE  VIEW public.v_ordered_products_old AS
+ SELECT products.product_id,
+        products.product_guid,
+        products.product_name,
+        products.product_version,
+        products.product_version_major,
+        products.product_version_minor,
+        products.product_version_minor_suffix,
+        products.product_version_sub_a,
+        products.product_version_sub_a_suffix,
+        products.product_version_sub_b,
+        products.product_version_sub_b_suffix,
+        products.formatted_version_major,
+        CASE products.formatted_version_major WHEN 'Other'::varchar(5) THEN 9990000 WHEN 'Unknown'::varchar(7) THEN 9980000 ELSE ((products.product_version_major * 10000) + products.product_version_minor) END AS NUMERIC_formatted_version_major
+ FROM public.products;
+
+CREATE  VIEW public.sf_contact_history_vw AS
+ SELECT sf_contact_history.contact_id,
+        sf_contact_history.created_date,
+        CASE WHEN (sf_contact_history.field = ANY (ARRAY['Sub_Test_Pilot__c'::varchar(17), 'Sub_Firefox_And_You__c'::varchar(22), 'Sub_Firefox_Accounts_Journey__c'::varchar(31)])) THEN 'Firefox'::varchar(7) WHEN (sf_contact_history.field = 'Sub_Apps_And_Hacks__c'::varchar(21)) THEN 'Developer'::varchar(9) WHEN (sf_contact_history.field = 'Sub_Mozilla_Foundation__c'::varchar(25)) THEN 'Mozilla'::varchar(7) WHEN (sf_contact_history.field = ANY (ARRAY['Sub_MITI_Subscriber__c'::varchar(22), 'Sub_Mozilla_Learning_Network__c'::varchar(31), 'Sub_Mozilla_Leadership_Network__c'::varchar(33), 'Sub_Webmaker__c'::varchar(15), 'Sub_Mozillians__c'::varchar(17), 'Sub_Open_Innovation_Subscriber__c'::varchar(33), 'Sub_Test_Flight__c'::varchar(18), 'Sub_View_Source_Global__c'::varchar(25), 'Sub_View_Source_Namerica__c'::varchar(27), 'Sub_Mozillians_NDA__c'::varchar(21)])) THEN 'Other'::varchar(5) ELSE sf_contact_history.field END AS field,
+        sf_contact_history.new_value,
+        sf_contact_history.old_value
+ FROM public.sf_contact_history;
+
+CREATE  VIEW public.sf_contacts_vw AS
+ SELECT sf_contacts.id,
+        sf_contacts.created_date,
+        CASE WHEN ((sf_contacts.contact_name IS NOT NULL) AND (sf_contacts.contact_name <> '_'::varchar(1))) THEN 1 ELSE 0 END AS has_name,
+        CASE WHEN ((sf_contacts.email IS NOT NULL) AND (sf_contacts.email <> '_'::varchar(1))) THEN true ELSE false END AS has_email,
+        sf_contacts.email_format,
+        sf_contacts.email_language,
+        sf_contacts.mailing_country,
+        sf_contacts.signup_source_url,
+        sf_contacts.double_opt_in,
+        sf_contacts.email_opt_out,
+        sf_contacts.subscriber,
+        CASE WHEN ((sf_contacts.sub_test_pilot = true) OR (sf_contacts.sub_firefox_and_you = true) OR (sf_contacts.sub_firefox_accounts_journey = true)) THEN true ELSE false END AS fx_subscriber,
+        sf_contacts.sub_apps_and_hacks AS dev_subscriber,
+        sf_contacts.sub_mozilla_foundation AS moz_subscriber,
+        CASE WHEN ((sf_contacts.sub_miti_subscriber = true) OR (sf_contacts.sub_mozilla_leadership_network = true) OR (sf_contacts.sub_mozilla_learning_network = true) OR (sf_contacts.sub_webmaker = true) OR (sf_contacts.sub_mozillians_nda = true) OR (sf_contacts.sub_open_innovation_subscriber = true) OR (sf_contacts.sub_test_flight = true) OR (sf_contacts.sub_view_source_global = true) OR (sf_contacts.sub_view_source_namerica = true)) THEN true ELSE false END AS other_subscriber,
+        CASE WHEN ((sf_contacts.double_opt_in = true) AND (sf_contacts.email_opt_out = false) AND (sf_contacts.subscriber = true)) THEN 1 ELSE 0 END AS is_active_subscriber
+ FROM public.sf_contacts;
+
 CREATE  VIEW public.adi_dimensional_by_date AS
  SELECT copy_adi_dimensional_by_date._year_quarter,
         copy_adi_dimensional_by_date.bl_date,
@@ -7020,21 +7144,28 @@ CREATE  VIEW public.adi_dimensional_by_date AS
         copy_adi_dimensional_by_date.distro_version
  FROM public.copy_adi_dimensional_by_date;
 
-CREATE  VIEW public.v_ordered_products_old AS
- SELECT products.product_id,
-        products.product_guid,
-        products.product_name,
-        products.product_version,
-        products.product_version_major,
-        products.product_version_minor,
-        products.product_version_minor_suffix,
-        products.product_version_sub_a,
-        products.product_version_sub_a_suffix,
-        products.product_version_sub_b,
-        products.product_version_sub_b_suffix,
-        products.formatted_version_major,
-        CASE products.formatted_version_major WHEN 'Other'::varchar(5) THEN 9990000 WHEN 'Unknown'::varchar(7) THEN 9980000 ELSE ((products.product_version_major * 10000) + products.product_version_minor) END AS NUMERIC_formatted_version_major
- FROM public.products;
+CREATE  VIEW public.adjust_daily_active_users_vw AS
+(( SELECT adjust_ios_daily_active_users.adj_date,
+        adjust_ios_daily_active_users.daus,
+        adjust_ios_daily_active_users.waus,
+        adjust_ios_daily_active_users.maus,
+        'Firefox iOS'::varchar(11) AS type
+ FROM public.adjust_ios_daily_active_users UNION  SELECT adjust_android_daily_active_users.adj_date,
+        adjust_android_daily_active_users.daus,
+        adjust_android_daily_active_users.waus,
+        adjust_android_daily_active_users.maus,
+        'Firefox Android'::varchar(15) AS type
+ FROM public.adjust_android_daily_active_users) UNION  SELECT adjust_klar_daily_active_users.adj_date,
+        adjust_klar_daily_active_users.daus,
+        adjust_klar_daily_active_users.waus,
+        adjust_klar_daily_active_users.maus,
+        'Klar'::varchar(4) AS type
+ FROM public.adjust_klar_daily_active_users) UNION  SELECT adjust_focus_daily_active_users.adj_date,
+        adjust_focus_daily_active_users.daus,
+        adjust_focus_daily_active_users.waus,
+        adjust_focus_daily_active_users.maus,
+        'Focus'::varchar(5) AS type
+ FROM public.adjust_focus_daily_active_users;
 
 CREATE  VIEW public.vw_tableau_adi_daily_old AS
  SELECT adi_dimensional_by_date.bl_date AS ping_date,
@@ -7073,56 +7204,6 @@ CREATE  VIEW public.vw_tableau_adi_daily_old AS
           l.country_name,
           adi_dimensional_by_date.distro_name,
           adi_dimensional_by_date.distro_version;
-
-CREATE  VIEW public.sf_contacts_vw AS
- SELECT sf_contacts.id,
-        sf_contacts.created_date,
-        CASE WHEN ((sf_contacts.contact_name IS NOT NULL) AND (sf_contacts.contact_name <> '_'::varchar(1))) THEN 1 ELSE 0 END AS has_name,
-        CASE WHEN ((sf_contacts.email IS NOT NULL) AND (sf_contacts.email <> '_'::varchar(1))) THEN true ELSE false END AS has_email,
-        sf_contacts.email_format,
-        sf_contacts.email_language,
-        sf_contacts.mailing_country,
-        sf_contacts.signup_source_url,
-        sf_contacts.double_opt_in,
-        sf_contacts.email_opt_out,
-        sf_contacts.subscriber,
-        CASE WHEN ((sf_contacts.sub_test_pilot = true) OR (sf_contacts.sub_firefox_and_you = true) OR (sf_contacts.sub_firefox_accounts_journey = true)) THEN true ELSE false END AS fx_subscriber,
-        sf_contacts.sub_apps_and_hacks AS dev_subscriber,
-        sf_contacts.sub_mozilla_foundation AS moz_subscriber,
-        CASE WHEN ((sf_contacts.sub_miti_subscriber = true) OR (sf_contacts.sub_mozilla_leadership_network = true) OR (sf_contacts.sub_mozilla_learning_network = true) OR (sf_contacts.sub_webmaker = true) OR (sf_contacts.sub_mozillians_nda = true) OR (sf_contacts.sub_open_innovation_subscriber = true) OR (sf_contacts.sub_test_flight = true) OR (sf_contacts.sub_view_source_global = true) OR (sf_contacts.sub_view_source_namerica = true)) THEN true ELSE false END AS other_subscriber,
-        CASE WHEN ((sf_contacts.double_opt_in = true) AND (sf_contacts.email_opt_out = false) AND (sf_contacts.subscriber = true)) THEN 1 ELSE 0 END AS is_active_subscriber
- FROM public.sf_contacts;
-
-CREATE  VIEW public.adjust_daily_active_users_vw AS
-(( SELECT adjust_ios_daily_active_users.adj_date,
-        adjust_ios_daily_active_users.daus,
-        adjust_ios_daily_active_users.waus,
-        adjust_ios_daily_active_users.maus,
-        'Firefox iOS'::varchar(11) AS type
- FROM public.adjust_ios_daily_active_users UNION  SELECT adjust_android_daily_active_users.adj_date,
-        adjust_android_daily_active_users.daus,
-        adjust_android_daily_active_users.waus,
-        adjust_android_daily_active_users.maus,
-        'Firefox Android'::varchar(15) AS type
- FROM public.adjust_android_daily_active_users) UNION  SELECT adjust_klar_daily_active_users.adj_date,
-        adjust_klar_daily_active_users.daus,
-        adjust_klar_daily_active_users.waus,
-        adjust_klar_daily_active_users.maus,
-        'Klar'::varchar(4) AS type
- FROM public.adjust_klar_daily_active_users) UNION  SELECT adjust_focus_daily_active_users.adj_date,
-        adjust_focus_daily_active_users.daus,
-        adjust_focus_daily_active_users.waus,
-        adjust_focus_daily_active_users.maus,
-        'Focus'::varchar(5) AS type
- FROM public.adjust_focus_daily_active_users;
-
-CREATE  VIEW public.sf_contact_history_vw AS
- SELECT sf_contact_history.contact_id,
-        sf_contact_history.created_date,
-        CASE WHEN (sf_contact_history.field = ANY (ARRAY['Sub_Test_Pilot__c'::varchar(17), 'Sub_Firefox_And_You__c'::varchar(22), 'Sub_Firefox_Accounts_Journey__c'::varchar(31)])) THEN 'Firefox'::varchar(7) WHEN (sf_contact_history.field = 'Sub_Apps_And_Hacks__c'::varchar(21)) THEN 'Developer'::varchar(9) WHEN (sf_contact_history.field = 'Sub_Mozilla_Foundation__c'::varchar(25)) THEN 'Mozilla'::varchar(7) WHEN (sf_contact_history.field = ANY (ARRAY['Sub_MITI_Subscriber__c'::varchar(22), 'Sub_Mozilla_Learning_Network__c'::varchar(31), 'Sub_Mozilla_Leadership_Network__c'::varchar(33), 'Sub_Webmaker__c'::varchar(15), 'Sub_Mozillians__c'::varchar(17), 'Sub_Open_Innovation_Subscriber__c'::varchar(33), 'Sub_Test_Flight__c'::varchar(18), 'Sub_View_Source_Global__c'::varchar(25), 'Sub_View_Source_Namerica__c'::varchar(27), 'Sub_Mozillians_NDA__c'::varchar(21)])) THEN 'Other'::varchar(5) ELSE sf_contact_history.field END AS field,
-        sf_contact_history.new_value,
-        sf_contact_history.old_value
- FROM public.sf_contact_history;
 
 CREATE FUNCTION public.isOrContains(map Long Varchar, val Varchar)
 RETURN boolean AS
