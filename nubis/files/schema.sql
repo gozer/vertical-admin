@@ -7084,6 +7084,28 @@ AS
           v4_submissionwise_v5_test.intermediate_source
 SEGMENTED BY hash(v4_submissionwise_v5_test.submission_date, v4_submissionwise_v5_test.search_count, v4_submissionwise_v5_test.profiles_matching, v4_submissionwise_v5_test.profile_share, v4_submissionwise_v5_test.search_provider, v4_submissionwise_v5_test.country, v4_submissionwise_v5_test.locale, v4_submissionwise_v5_test.distribution_id, v4_submissionwise_v5_test.default_provider, v4_submissionwise_v5_test.intermediate_source) ALL NODES KSAFE 1;
 
+CREATE PROJECTION public.sf_contact_history /*+createtype(L)*/ 
+(
+ field,
+ contact_id,
+ created_date,
+ new_value,
+ old_value
+)
+AS
+ SELECT sf_contact_history.field,
+        sf_contact_history.contact_id,
+        sf_contact_history.created_date,
+        sf_contact_history.new_value,
+        sf_contact_history.old_value
+ FROM public.sf_contact_history
+ ORDER BY sf_contact_history.field,
+          sf_contact_history.contact_id,
+          sf_contact_history.created_date,
+          sf_contact_history.new_value,
+          sf_contact_history.old_value
+SEGMENTED BY hash(sf_contact_history.created_date, sf_contact_history.field, sf_contact_history.contact_id, sf_contact_history.new_value, sf_contact_history.old_value) ALL NODES KSAFE 1;
+
 
 CREATE  VIEW public.v_ordered_products_old AS
  SELECT products.product_id,
