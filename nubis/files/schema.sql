@@ -2157,6 +2157,134 @@ CREATE TABLE public.sf_contact_history
 );
 
 
+CREATE TABLE public.aws_accounts
+(
+    account_id varchar(80) NOT NULL,
+    account_name varchar(80),
+    cost_center varchar(80),
+    requester varchar(80)
+);
+
+ALTER TABLE public.aws_accounts ADD CONSTRAINT C_PRIMARY PRIMARY KEY (account_id) ENABLED;
+ALTER TABLE public.aws_accounts ADD CONSTRAINT smplcheck2 CHECK ((aws_accounts.account_id IS NOT NULL)) ENABLED;
+
+CREATE TABLE public.ut_clients_daily_palomar
+(
+    client_id varchar(255),
+    max_submission_date_s3 date,
+    min_submission_date_s3 date,
+    days_dau int,
+    days_active int,
+    active_weekdays int,
+    active_weekend_days int,
+    max_addons int,
+    avg_daily_searches float,
+    sum_daily_searches int,
+    sum_weekday_searches int,
+    sum_weekend_searches int,
+    avg_daily_uri_count float,
+    sum_daily_uri_count int,
+    sum_weekday_uri_count int,
+    sum_weekend_uri_count int,
+    avg_daily_active_hours float,
+    sum_daily_active_hours float,
+    sum_weekday_active_hours float,
+    sum_weekend_active_hours float,
+    avg_daily_usage_hours float,
+    sum_daily_usage_hours float,
+    sum_weekday_usage_hours float,
+    sum_weekend_usage_hours float,
+    days_active_28 int,
+    active_weekdays_28 int,
+    active_weekend_days_28 int,
+    pct_days_active float,
+    pct_days_active_28 float,
+    pct_weekdays_active_28 float,
+    pct_weekends_active_28 float
+);
+
+ALTER TABLE public.ut_clients_daily_palomar ADD CONSTRAINT C_UNIQUE UNIQUE (client_id) DISABLED;
+
+CREATE TABLE public.workday_hires_monthly
+(
+    employee_id varchar(20),
+    report_effective_date date
+);
+
+
+CREATE TABLE public.workday_terminations_monthly
+(
+    employee_id varchar(20),
+    report_effective_date date
+);
+
+
+CREATE TABLE public.workday_promotions_monthly
+(
+    employee_id varchar(20),
+    report_effective_date date
+);
+
+
+CREATE TABLE public.workday_employees_monthly
+(
+    employee_id varchar(20),
+    cost_center varchar(10),
+    cost_center_hierarchy varchar(50),
+    cost_center_hierarchy_group varchar(50),
+    steering_committee varchar(50),
+    scvp varchar(50),
+    management_chain_level_01 varchar(50),
+    management_chain_level_02 varchar(50),
+    management_chain_level_03 varchar(50),
+    management_chain_level_04 varchar(50),
+    management_chain_level_05 varchar(50),
+    management_chain_level_06 varchar(50),
+    worker_type varchar(25),
+    position_worker_type varchar(50),
+    job_family varchar(50),
+    management_level varchar(25),
+    is_manager boolean,
+    engineering_nonengineering varchar(20),
+    gender varchar(20),
+    female boolean,
+    male boolean,
+    gender_decline boolean,
+    gender_other boolean,
+    gender_blank boolean,
+    race_ethnicity varchar(255),
+    asian boolean,
+    black_or_african_american boolean,
+    hispanic_or_latino boolean,
+    native_hawaiian_or_other_pacific_islander boolean,
+    american_indian_or_alaska_native boolean,
+    two_or_more_races boolean,
+    race_is_other boolean,
+    white boolean,
+    race_decline boolean,
+    race_blank boolean,
+    original_hire_date date,
+    continuous_service_date date,
+    company_service_date date,
+    benefits_service_date date,
+    seniority_date date,
+    hire_date date,
+    office_or_remote varchar(10),
+    work_address_city varchar(100),
+    work_address_postal_code varchar(20),
+    location varchar(50),
+    location_address_country varchar(50),
+    workers_managers_legal_last_name varchar(50),
+    workers_managers_legal_first_name varchar(50),
+    worker_status varchar(15),
+    people_partner varchar(50),
+    termination_date date,
+    termination_category varchar(50),
+    termination_reason varchar(255),
+    report_effective_date date
+);
+
+
 CREATE PROJECTION autoscale.launches_super /*+basename(launches),createtype(P)*/ 
 (
  added_by_node,
@@ -7084,6 +7212,77 @@ AS
           v4_submissionwise_v5_test.intermediate_source
 SEGMENTED BY hash(v4_submissionwise_v5_test.submission_date, v4_submissionwise_v5_test.search_count, v4_submissionwise_v5_test.profiles_matching, v4_submissionwise_v5_test.profile_share, v4_submissionwise_v5_test.search_provider, v4_submissionwise_v5_test.country, v4_submissionwise_v5_test.locale, v4_submissionwise_v5_test.distribution_id, v4_submissionwise_v5_test.default_provider, v4_submissionwise_v5_test.intermediate_source) ALL NODES KSAFE 1;
 
+CREATE PROJECTION public.ut_clients_daily_palomar /*+createtype(L)*/ 
+(
+ client_id,
+ max_submission_date_s3,
+ min_submission_date_s3,
+ days_dau,
+ days_active,
+ active_weekdays,
+ active_weekend_days,
+ max_addons,
+ avg_daily_searches,
+ sum_daily_searches,
+ sum_weekday_searches,
+ sum_weekend_searches,
+ avg_daily_uri_count,
+ sum_daily_uri_count,
+ sum_weekday_uri_count,
+ sum_weekend_uri_count,
+ avg_daily_active_hours,
+ sum_daily_active_hours,
+ sum_weekday_active_hours,
+ sum_weekend_active_hours,
+ avg_daily_usage_hours,
+ sum_daily_usage_hours,
+ sum_weekday_usage_hours,
+ sum_weekend_usage_hours,
+ days_active_28,
+ active_weekdays_28,
+ active_weekend_days_28,
+ pct_days_active,
+ pct_days_active_28,
+ pct_weekdays_active_28,
+ pct_weekends_active_28
+)
+AS
+ SELECT ut_clients_daily_palomar.client_id,
+        ut_clients_daily_palomar.max_submission_date_s3,
+        ut_clients_daily_palomar.min_submission_date_s3,
+        ut_clients_daily_palomar.days_dau,
+        ut_clients_daily_palomar.days_active,
+        ut_clients_daily_palomar.active_weekdays,
+        ut_clients_daily_palomar.active_weekend_days,
+        ut_clients_daily_palomar.max_addons,
+        ut_clients_daily_palomar.avg_daily_searches,
+        ut_clients_daily_palomar.sum_daily_searches,
+        ut_clients_daily_palomar.sum_weekday_searches,
+        ut_clients_daily_palomar.sum_weekend_searches,
+        ut_clients_daily_palomar.avg_daily_uri_count,
+        ut_clients_daily_palomar.sum_daily_uri_count,
+        ut_clients_daily_palomar.sum_weekday_uri_count,
+        ut_clients_daily_palomar.sum_weekend_uri_count,
+        ut_clients_daily_palomar.avg_daily_active_hours,
+        ut_clients_daily_palomar.sum_daily_active_hours,
+        ut_clients_daily_palomar.sum_weekday_active_hours,
+        ut_clients_daily_palomar.sum_weekend_active_hours,
+        ut_clients_daily_palomar.avg_daily_usage_hours,
+        ut_clients_daily_palomar.sum_daily_usage_hours,
+        ut_clients_daily_palomar.sum_weekday_usage_hours,
+        ut_clients_daily_palomar.sum_weekend_usage_hours,
+        ut_clients_daily_palomar.days_active_28,
+        ut_clients_daily_palomar.active_weekdays_28,
+        ut_clients_daily_palomar.active_weekend_days_28,
+        ut_clients_daily_palomar.pct_days_active,
+        ut_clients_daily_palomar.pct_days_active_28,
+        ut_clients_daily_palomar.pct_weekdays_active_28,
+        ut_clients_daily_palomar.pct_weekends_active_28
+ FROM public.ut_clients_daily_palomar
+ ORDER BY ut_clients_daily_palomar.client_id,
+          ut_clients_daily_palomar.max_submission_date_s3
+SEGMENTED BY hash(ut_clients_daily_palomar.client_id, ut_clients_daily_palomar.max_submission_date_s3) ALL NODES KSAFE 1;
+
 CREATE PROJECTION public.sf_contact_history /*+createtype(L)*/ 
 (
  field,
@@ -7105,6 +7304,438 @@ AS
           sf_contact_history.new_value,
           sf_contact_history.old_value
 SEGMENTED BY hash(sf_contact_history.created_date, sf_contact_history.field, sf_contact_history.contact_id, sf_contact_history.new_value, sf_contact_history.old_value) ALL NODES KSAFE 1;
+
+CREATE PROJECTION public.aws_accounts /*+createtype(L)*/ 
+(
+ account_id,
+ account_name,
+ cost_center,
+ requester
+)
+AS
+ SELECT aws_accounts.account_id,
+        aws_accounts.account_name,
+        aws_accounts.cost_center,
+        aws_accounts.requester
+ FROM public.aws_accounts
+ ORDER BY aws_accounts.account_id
+SEGMENTED BY hash(aws_accounts.account_id) ALL NODES KSAFE 1;
+
+CREATE PROJECTION public.workday_employees_monthly /*+createtype(L)*/ 
+(
+ employee_id,
+ cost_center,
+ cost_center_hierarchy,
+ cost_center_hierarchy_group,
+ steering_committee,
+ scvp,
+ management_chain_level_01,
+ management_chain_level_02,
+ management_chain_level_03,
+ management_chain_level_04,
+ management_chain_level_05,
+ management_chain_level_06,
+ worker_type,
+ position_worker_type,
+ job_family,
+ management_level,
+ is_manager,
+ engineering_nonengineering,
+ gender,
+ female,
+ male,
+ gender_decline,
+ gender_other,
+ gender_blank,
+ race_ethnicity,
+ asian,
+ black_or_african_american,
+ hispanic_or_latino,
+ native_hawaiian_or_other_pacific_islander,
+ american_indian_or_alaska_native,
+ two_or_more_races,
+ race_is_other,
+ white,
+ race_decline,
+ race_blank,
+ original_hire_date,
+ continuous_service_date,
+ company_service_date,
+ benefits_service_date,
+ seniority_date,
+ hire_date,
+ office_or_remote,
+ work_address_city,
+ work_address_postal_code,
+ location,
+ location_address_country,
+ workers_managers_legal_last_name,
+ workers_managers_legal_first_name,
+ worker_status,
+ people_partner,
+ termination_date,
+ termination_category,
+ termination_reason,
+ report_effective_date
+)
+AS
+ SELECT workday_employees_monthly.employee_id,
+        workday_employees_monthly.cost_center,
+        workday_employees_monthly.cost_center_hierarchy,
+        workday_employees_monthly.cost_center_hierarchy_group,
+        workday_employees_monthly.steering_committee,
+        workday_employees_monthly.scvp,
+        workday_employees_monthly.management_chain_level_01,
+        workday_employees_monthly.management_chain_level_02,
+        workday_employees_monthly.management_chain_level_03,
+        workday_employees_monthly.management_chain_level_04,
+        workday_employees_monthly.management_chain_level_05,
+        workday_employees_monthly.management_chain_level_06,
+        workday_employees_monthly.worker_type,
+        workday_employees_monthly.position_worker_type,
+        workday_employees_monthly.job_family,
+        workday_employees_monthly.management_level,
+        workday_employees_monthly.is_manager,
+        workday_employees_monthly.engineering_nonengineering,
+        workday_employees_monthly.gender,
+        workday_employees_monthly.female,
+        workday_employees_monthly.male,
+        workday_employees_monthly.gender_decline,
+        workday_employees_monthly.gender_other,
+        workday_employees_monthly.gender_blank,
+        workday_employees_monthly.race_ethnicity,
+        workday_employees_monthly.asian,
+        workday_employees_monthly.black_or_african_american,
+        workday_employees_monthly.hispanic_or_latino,
+        workday_employees_monthly.native_hawaiian_or_other_pacific_islander,
+        workday_employees_monthly.american_indian_or_alaska_native,
+        workday_employees_monthly.two_or_more_races,
+        workday_employees_monthly.race_is_other,
+        workday_employees_monthly.white,
+        workday_employees_monthly.race_decline,
+        workday_employees_monthly.race_blank,
+        workday_employees_monthly.original_hire_date,
+        workday_employees_monthly.continuous_service_date,
+        workday_employees_monthly.company_service_date,
+        workday_employees_monthly.benefits_service_date,
+        workday_employees_monthly.seniority_date,
+        workday_employees_monthly.hire_date,
+        workday_employees_monthly.office_or_remote,
+        workday_employees_monthly.work_address_city,
+        workday_employees_monthly.work_address_postal_code,
+        workday_employees_monthly.location,
+        workday_employees_monthly.location_address_country,
+        workday_employees_monthly.workers_managers_legal_last_name,
+        workday_employees_monthly.workers_managers_legal_first_name,
+        workday_employees_monthly.worker_status,
+        workday_employees_monthly.people_partner,
+        workday_employees_monthly.termination_date,
+        workday_employees_monthly.termination_category,
+        workday_employees_monthly.termination_reason,
+        workday_employees_monthly.report_effective_date
+ FROM public.workday_employees_monthly
+ ORDER BY workday_employees_monthly.employee_id,
+          workday_employees_monthly.cost_center,
+          workday_employees_monthly.cost_center_hierarchy,
+          workday_employees_monthly.cost_center_hierarchy_group,
+          workday_employees_monthly.steering_committee,
+          workday_employees_monthly.scvp,
+          workday_employees_monthly.management_chain_level_01,
+          workday_employees_monthly.management_chain_level_02,
+          workday_employees_monthly.management_chain_level_03,
+          workday_employees_monthly.management_chain_level_04,
+          workday_employees_monthly.management_chain_level_05,
+          workday_employees_monthly.management_chain_level_06,
+          workday_employees_monthly.worker_type,
+          workday_employees_monthly.position_worker_type,
+          workday_employees_monthly.job_family,
+          workday_employees_monthly.management_level,
+          workday_employees_monthly.is_manager,
+          workday_employees_monthly.engineering_nonengineering,
+          workday_employees_monthly.gender,
+          workday_employees_monthly.female,
+          workday_employees_monthly.male,
+          workday_employees_monthly.gender_decline,
+          workday_employees_monthly.gender_other,
+          workday_employees_monthly.gender_blank,
+          workday_employees_monthly.race_ethnicity,
+          workday_employees_monthly.asian,
+          workday_employees_monthly.black_or_african_american,
+          workday_employees_monthly.hispanic_or_latino,
+          workday_employees_monthly.native_hawaiian_or_other_pacific_islander,
+          workday_employees_monthly.american_indian_or_alaska_native,
+          workday_employees_monthly.two_or_more_races,
+          workday_employees_monthly.race_is_other,
+          workday_employees_monthly.white,
+          workday_employees_monthly.race_decline,
+          workday_employees_monthly.race_blank,
+          workday_employees_monthly.original_hire_date,
+          workday_employees_monthly.continuous_service_date,
+          workday_employees_monthly.company_service_date,
+          workday_employees_monthly.benefits_service_date,
+          workday_employees_monthly.seniority_date,
+          workday_employees_monthly.hire_date,
+          workday_employees_monthly.office_or_remote,
+          workday_employees_monthly.work_address_city,
+          workday_employees_monthly.work_address_postal_code,
+          workday_employees_monthly.location,
+          workday_employees_monthly.location_address_country,
+          workday_employees_monthly.workers_managers_legal_last_name,
+          workday_employees_monthly.workers_managers_legal_first_name,
+          workday_employees_monthly.worker_status,
+          workday_employees_monthly.people_partner,
+          workday_employees_monthly.termination_date,
+          workday_employees_monthly.termination_category,
+          workday_employees_monthly.termination_reason,
+          workday_employees_monthly.report_effective_date
+SEGMENTED BY hash(workday_employees_monthly.is_manager, workday_employees_monthly.female, workday_employees_monthly.male, workday_employees_monthly.gender_decline, workday_employees_monthly.gender_other, workday_employees_monthly.gender_blank, workday_employees_monthly.asian, workday_employees_monthly.black_or_african_american, workday_employees_monthly.hispanic_or_latino, workday_employees_monthly.native_hawaiian_or_other_pacific_islander, workday_employees_monthly.american_indian_or_alaska_native, workday_employees_monthly.two_or_more_races, workday_employees_monthly.race_is_other, workday_employees_monthly.white, workday_employees_monthly.race_decline, workday_employees_monthly.race_blank, workday_employees_monthly.original_hire_date, workday_employees_monthly.continuous_service_date, workday_employees_monthly.company_service_date, workday_employees_monthly.benefits_service_date, workday_employees_monthly.seniority_date, workday_employees_monthly.hire_date, workday_employees_monthly.termination_date, workday_employees_monthly.report_effective_date, workday_employees_monthly.cost_center, workday_employees_monthly.office_or_remote, workday_employees_monthly.worker_status, workday_employees_monthly.employee_id, workday_employees_monthly.engineering_nonengineering, workday_employees_monthly.gender, workday_employees_monthly.work_address_postal_code, workday_employees_monthly.worker_type) ALL NODES KSAFE 1;
+
+CREATE PROJECTION public.workday_hires_monthly /*+createtype(L)*/ 
+(
+ employee_id,
+ report_effective_date
+)
+AS
+ SELECT workday_hires_monthly.employee_id,
+        workday_hires_monthly.report_effective_date
+ FROM public.workday_hires_monthly
+ ORDER BY workday_hires_monthly.employee_id,
+          workday_hires_monthly.report_effective_date
+SEGMENTED BY hash(workday_hires_monthly.report_effective_date, workday_hires_monthly.employee_id) ALL NODES KSAFE 1;
+
+CREATE PROJECTION public.workday_terminations_monthly /*+createtype(L)*/ 
+(
+ employee_id,
+ report_effective_date
+)
+AS
+ SELECT workday_terminations_monthly.employee_id,
+        workday_terminations_monthly.report_effective_date
+ FROM public.workday_terminations_monthly
+ ORDER BY workday_terminations_monthly.employee_id,
+          workday_terminations_monthly.report_effective_date
+SEGMENTED BY hash(workday_terminations_monthly.report_effective_date, workday_terminations_monthly.employee_id) ALL NODES KSAFE 1;
+
+CREATE PROJECTION public.workday_promotions_monthly /*+createtype(L)*/ 
+(
+ employee_id,
+ report_effective_date
+)
+AS
+ SELECT workday_promotions_monthly.employee_id,
+        workday_promotions_monthly.report_effective_date
+ FROM public.workday_promotions_monthly
+ ORDER BY workday_promotions_monthly.employee_id,
+          workday_promotions_monthly.report_effective_date
+SEGMENTED BY hash(workday_promotions_monthly.report_effective_date, workday_promotions_monthly.employee_id) ALL NODES KSAFE 1;
+
+CREATE PROJECTION public.workday_employees /*+createtype(L)*/ 
+(
+ employee_id,
+ cost_center,
+ cost_center_hierarchy,
+ cost_center_hierarchy_group,
+ steering_committee,
+ scvp,
+ management_chain_level_01,
+ management_chain_level_02,
+ management_chain_level_03,
+ management_chain_level_04,
+ management_chain_level_05,
+ management_chain_level_06,
+ worker_type,
+ position_worker_type,
+ job_family,
+ management_level,
+ is_manager,
+ engineering_nonengineering,
+ gender,
+ female,
+ male,
+ gender_decline,
+ gender_other,
+ gender_blank,
+ race_ethnicity,
+ asian,
+ black_or_african_american,
+ hispanic_or_latino,
+ native_hawaiian_or_other_pacific_islander,
+ american_indian_or_alaska_native,
+ two_or_more_races,
+ race_is_other,
+ white,
+ race_decline,
+ race_blank,
+ original_hire_date,
+ continuous_service_date,
+ company_service_date,
+ benefits_service_date,
+ seniority_date,
+ hire_date,
+ office_or_remote,
+ work_address_city,
+ work_address_postal_code,
+ location,
+ location_address_country,
+ workers_managers_legal_last_name,
+ workers_managers_legal_first_name,
+ worker_status,
+ people_partner,
+ termination_date,
+ termination_category,
+ termination_reason,
+ report_effective_date
+)
+AS
+ SELECT workday_employees.employee_id,
+        workday_employees.cost_center,
+        workday_employees.cost_center_hierarchy,
+        workday_employees.cost_center_hierarchy_group,
+        workday_employees.steering_committee,
+        workday_employees.scvp,
+        workday_employees.management_chain_level_01,
+        workday_employees.management_chain_level_02,
+        workday_employees.management_chain_level_03,
+        workday_employees.management_chain_level_04,
+        workday_employees.management_chain_level_05,
+        workday_employees.management_chain_level_06,
+        workday_employees.worker_type,
+        workday_employees.position_worker_type,
+        workday_employees.job_family,
+        workday_employees.management_level,
+        workday_employees.is_manager,
+        workday_employees.engineering_nonengineering,
+        workday_employees.gender,
+        workday_employees.female,
+        workday_employees.male,
+        workday_employees.gender_decline,
+        workday_employees.gender_other,
+        workday_employees.gender_blank,
+        workday_employees.race_ethnicity,
+        workday_employees.asian,
+        workday_employees.black_or_african_american,
+        workday_employees.hispanic_or_latino,
+        workday_employees.native_hawaiian_or_other_pacific_islander,
+        workday_employees.american_indian_or_alaska_native,
+        workday_employees.two_or_more_races,
+        workday_employees.race_is_other,
+        workday_employees.white,
+        workday_employees.race_decline,
+        workday_employees.race_blank,
+        workday_employees.original_hire_date,
+        workday_employees.continuous_service_date,
+        workday_employees.company_service_date,
+        workday_employees.benefits_service_date,
+        workday_employees.seniority_date,
+        workday_employees.hire_date,
+        workday_employees.office_or_remote,
+        workday_employees.work_address_city,
+        workday_employees.work_address_postal_code,
+        workday_employees.location,
+        workday_employees.location_address_country,
+        workday_employees.workers_managers_legal_last_name,
+        workday_employees.workers_managers_legal_first_name,
+        workday_employees.worker_status,
+        workday_employees.people_partner,
+        workday_employees.termination_date,
+        workday_employees.termination_category,
+        workday_employees.termination_reason,
+        workday_employees.report_effective_date
+ FROM public.workday_employees
+ ORDER BY workday_employees.employee_id,
+          workday_employees.cost_center,
+          workday_employees.cost_center_hierarchy,
+          workday_employees.cost_center_hierarchy_group,
+          workday_employees.steering_committee,
+          workday_employees.scvp,
+          workday_employees.management_chain_level_01,
+          workday_employees.management_chain_level_02,
+          workday_employees.management_chain_level_03,
+          workday_employees.management_chain_level_04,
+          workday_employees.management_chain_level_05,
+          workday_employees.management_chain_level_06,
+          workday_employees.worker_type,
+          workday_employees.position_worker_type,
+          workday_employees.job_family,
+          workday_employees.management_level,
+          workday_employees.is_manager,
+          workday_employees.engineering_nonengineering,
+          workday_employees.gender,
+          workday_employees.female,
+          workday_employees.male,
+          workday_employees.gender_decline,
+          workday_employees.gender_other,
+          workday_employees.gender_blank,
+          workday_employees.race_ethnicity,
+          workday_employees.asian,
+          workday_employees.black_or_african_american,
+          workday_employees.hispanic_or_latino,
+          workday_employees.native_hawaiian_or_other_pacific_islander,
+          workday_employees.american_indian_or_alaska_native,
+          workday_employees.two_or_more_races,
+          workday_employees.race_is_other,
+          workday_employees.white,
+          workday_employees.race_decline,
+          workday_employees.race_blank,
+          workday_employees.original_hire_date,
+          workday_employees.continuous_service_date,
+          workday_employees.company_service_date,
+          workday_employees.benefits_service_date,
+          workday_employees.seniority_date,
+          workday_employees.hire_date,
+          workday_employees.office_or_remote,
+          workday_employees.work_address_city,
+          workday_employees.work_address_postal_code,
+          workday_employees.location,
+          workday_employees.location_address_country,
+          workday_employees.workers_managers_legal_last_name,
+          workday_employees.workers_managers_legal_first_name,
+          workday_employees.worker_status,
+          workday_employees.people_partner,
+          workday_employees.termination_date,
+          workday_employees.termination_category,
+          workday_employees.termination_reason,
+          workday_employees.report_effective_date
+SEGMENTED BY hash(workday_employees.is_manager, workday_employees.female, workday_employees.male, workday_employees.gender_decline, workday_employees.gender_other, workday_employees.gender_blank, workday_employees.asian, workday_employees.black_or_african_american, workday_employees.hispanic_or_latino, workday_employees.native_hawaiian_or_other_pacific_islander, workday_employees.american_indian_or_alaska_native, workday_employees.two_or_more_races, workday_employees.race_is_other, workday_employees.white, workday_employees.race_decline, workday_employees.race_blank, workday_employees.original_hire_date, workday_employees.continuous_service_date, workday_employees.company_service_date, workday_employees.benefits_service_date, workday_employees.seniority_date, workday_employees.hire_date, workday_employees.termination_date, workday_employees.report_effective_date, workday_employees.cost_center, workday_employees.office_or_remote, workday_employees.worker_status, workday_employees.employee_id, workday_employees.engineering_nonengineering, workday_employees.gender, workday_employees.work_address_postal_code, workday_employees.worker_type) ALL NODES KSAFE 1;
+
+CREATE PROJECTION public.workday_hires /*+createtype(L)*/ 
+(
+ employee_id,
+ report_effective_date
+)
+AS
+ SELECT workday_hires.employee_id,
+        workday_hires.report_effective_date
+ FROM public.workday_hires
+ ORDER BY workday_hires.employee_id,
+          workday_hires.report_effective_date
+SEGMENTED BY hash(workday_hires.report_effective_date, workday_hires.employee_id) ALL NODES KSAFE 1;
+
+CREATE PROJECTION public.workday_terminations /*+createtype(L)*/ 
+(
+ employee_id,
+ report_effective_date
+)
+AS
+ SELECT workday_terminations.employee_id,
+        workday_terminations.report_effective_date
+ FROM public.workday_terminations
+ ORDER BY workday_terminations.employee_id,
+          workday_terminations.report_effective_date
+SEGMENTED BY hash(workday_terminations.report_effective_date, workday_terminations.employee_id) ALL NODES KSAFE 1;
+
+CREATE PROJECTION public.workday_promotions /*+createtype(L)*/ 
+(
+ employee_id,
+ report_effective_date
+)
+AS
+ SELECT workday_promotions.employee_id,
+        workday_promotions.report_effective_date
+ FROM public.workday_promotions
+ ORDER BY workday_promotions.employee_id,
+          workday_promotions.report_effective_date
+SEGMENTED BY hash(workday_promotions.report_effective_date, workday_promotions.employee_id) ALL NODES KSAFE 1;
 
 
 CREATE  VIEW public.v_ordered_products_old AS
