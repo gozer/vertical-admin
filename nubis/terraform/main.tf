@@ -3,7 +3,7 @@ provider "aws" {
 }
 
 module "worker" {
-  source            = "github.com/nubisproject/nubis-terraform//worker?ref=v2.3.1"
+  source            = "github.com/nubisproject/nubis-terraform//worker?ref=v2.4.3"
   region            = "${var.region}"
   environment       = "${var.environment}"
   account           = "${var.account}"
